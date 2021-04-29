@@ -1,0 +1,172 @@
+web登录 http://218.56.133.114/home.html
+用户名   kyzy
+密码     05398317997ky
+
+
+
+配置清单
+sysname Eudemon
+#
+  web-manager enable
+  web-manager security enable
+#
+ firewall packet-filter default permit interzone local trust direction inbound
+ firewall packet-filter default permit interzone local trust direction outbound
+ firewall packet-filter default permit interzone local untrust direction inbound
+ firewall packet-filter default permit interzone local untrust direction outbound
+ firewall packet-filter default permit interzone local dmz direction inbound
+ firewall packet-filter default permit interzone local dmz direction outbound
+ firewall packet-filter default permit interzone trust untrust direction inbound
+ firewall packet-filter default permit interzone trust untrust direction outbound
+ firewall packet-filter default permit interzone trust dmz direction inbound
+ firewall packet-filter default permit interzone trust dmz direction outbound
+ firewall packet-filter default permit interzone dmz untrust direction inbound
+ firewall packet-filter default permit interzone dmz untrust direction outbound
+#
+ nat address-group 1 218.56.133.114 218.56.133.114
+ nat server protocol tcp global 218.56.133.114 9900 inside 192.168.1.250 3389
+ nat server protocol tcp global 218.56.133.114 1701 inside 192.168.1.4 1701
+ nat server protocol tcp global 218.56.133.114 1723 inside 192.168.1.4 1723
+ nat server protocol tcp global 218.56.133.114 10000 inside 192.168.1.4 10000
+ nat server protocol tcp global 218.56.133.114 8072 8072 inside 192.168.1.250 192.168.1.250 8072
+ nat server protocol tcp global 218.56.133.114 8070 8070 inside 192.168.1.250 192.168.1.250 8070
+ nat server protocol tcp global 218.56.133.114 9001 9001 inside 192.168.1.250 192.168.1.250 9001
+ nat server protocol tcp global 218.56.133.114 9002 9002 inside 192.168.1.250 192.168.1.250 9002
+ nat server protocol tcp global 218.56.133.114 9023 9023 inside 192.168.1.4 192.168.1.4 9023
+ nat server protocol tcp global 218.56.133.114 8010 inside 192.168.1.252 8010
+ nat server protocol tcp global 218.56.133.114 8020 inside 192.168.1.252 8020
+ nat server protocol tcp global 218.56.133.114 8030 inside 192.168.1.252 8030
+ nat server protocol tcp global 218.56.133.114 8040 inside 192.168.1.252 8040
+ nat server protocol tcp global 218.56.133.114 8050 inside 192.168.1.252 8050
+ nat server protocol tcp global 218.56.133.114 8060 inside 192.168.1.252 8060
+ nat server protocol tcp global 218.56.133.114 8080 inside 192.168.1.252 8080
+ nat server protocol tcp global 218.56.133.114 8090 inside 192.168.1.252 8090
+ nat server protocol tcp global 218.56.133.114 7799 7799 inside 192.168.1.222 192.168.1.222 7799
+ nat alg enable ftp
+ nat alg enable dns
+ nat alg enable icmp
+ nat alg enable netbios
+ nat alg enable h323
+ undo nat alg enable hwcc
+ nat alg enable ils
+ nat alg enable pptp
+ nat alg enable qq
+ nat alg enable msn
+ undo nat alg enable user-define
+ nat alg enable sip
+ nat alg enable rtsp
+ firewall permit sub-ip
+#
+ firewall defend ip-spoofing enable
+ firewall defend land enable
+ firewall defend smurf enable
+ firewall defend fraggle enable
+ firewall defend winnuke enable
+ firewall defend syn-flood enable
+ firewall defend udp-flood enable
+ firewall defend icmp-flood enable
+ firewall defend icmp-redirect enable
+ firewall defend icmp-unreachable enable
+ firewall defend source-route enable
+ firewall defend route-record enable
+ firewall defend tracert enable
+ firewall defend time-stamp enable
+ firewall defend ping-of-death enable
+ firewall defend teardrop enable
+ firewall defend tcp-flag enable
+ firewall defend ip-fragment enable
+ firewall defend ip-sweep blacklist-timeout 10
+ firewall defend port-scan blacklist-timeout 10
+#
+ firewall statistic system enable 
+#
+interface Aux0
+ async mode flow
+ link-protocol ppp
+#
+interface Ethernet0/0/0
+ description connect to internet
+ ip address 218.56.133.114 255.255.255.0 
+#
+interface Ethernet0/0/1
+ description connect to trust
+ ip address 192.168.1.1 255.255.255.0 
+#
+interface Ethernet0/0/2
+#
+interface Ethernet0/0/3
+#
+interface Ethernet0/0/4
+#
+interface Secp0/0/0
+#
+interface NULL0
+#
+acl number 2001 
+ rule 5 permit source 192.168.1.0 0.0.0.255 
+acl number 2002 
+ rule 5 permit source 192.168.1.2 0 
+acl number 2010 
+ rule 0 permit source 192.168.1.0 0.0.0.255 
+#
+acl number 3010 
+ rule 5 permit tcp destination 192.168.1.252 0 destination-port eq 8060 
+ rule 10 permit tcp destination 192.168.1.252 0 destination-port eq 8010 
+ rule 15 permit tcp destination 192.168.1.252 0 destination-port eq 8020 
+ rule 20 permit tcp destination 192.168.1.252 0 destination-port eq 8030 
+ rule 25 permit tcp destination 192.168.1.252 0 destination-port eq 8040 
+ rule 30 permit tcp destination 192.168.1.252 0 destination-port eq 8050 
+ rule 35 permit tcp destination 192.168.1.252 0 destination-port eq 8080 
+ rule 40 permit tcp destination 192.168.1.252 0 destination-port eq 8090 
+#
+firewall zone local
+ set priority 100
+#
+firewall zone trust
+ set priority 85
+ add interface Ethernet0/0/1
+#
+firewall zone untrust
+ set priority 5
+ add interface Ethernet0/0/0
+#
+firewall zone dmz
+ set priority 50
+#
+firewall interzone local trust
+ packet-filter 2002 inbound
+ packet-filter 2001 outbound
+#
+firewall interzone local untrust
+#
+firewall interzone local dmz
+#
+firewall interzone trust untrust
+ packet-filter 3010 inbound
+ nat outbound 2010 address-group 1
+#
+firewall interzone trust dmz
+#
+firewall interzone dmz untrust
+#
+aaa 
+ local-user kyzy password simple 05398317997ky
+ local-user kyzy service-type web terminal telnet 
+ local-user kyzy level 3 
+ local-user kyzy idle-cut 
+ authentication-scheme default
+#
+ authorization-scheme default
+#
+ accounting-scheme default 
+#
+ domain default
+#
+#
+ ip route-static 0.0.0.0 0.0.0.0 218.56.133.113 
+#
+user-interface con 0
+user-interface aux 0
+user-interface vty 0 4
+ authentication-mode aaa
+ user privilege level 3
